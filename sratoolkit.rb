@@ -1,11 +1,12 @@
 class Sratoolkit < Formula
-  desc "Tools for using data from INSDC Sequence Read Archive"
+  desc "Data tools for INSDC Sequence Read Archive"
   homepage "https://github.com/ncbi/sra-tools"
   # doi "10.1093/nar/gkq1019"
   # tag "bioinformatics"
 
-  url "https://github.com/ncbi/sra-tools/archive/2.5.4.tar.gz"
-  sha256 "452093e2fb1336cad3f8ea4c22d8a2558dd485f61a49a11493e03c321462bde7"
+  url "https://github.com/ncbi/sra-tools/archive/2.5.8-1.tar.gz"
+  version "2.5.8-1"
+  sha256 "6ccc684b7d5f3c0d5583cec230aa5d20da2501fd86a5a6839028c252c542ff54"
   head "https://github.com/ncbi/sra-tools.git"
 
   bottle do
@@ -15,20 +16,20 @@ class Sratoolkit < Formula
     sha256 "145df2974d65f27f2d7b6c8b7cc1ad91c971cced0bf1c581530fba265a375d12" => :mavericks
   end
 
-  resource "ngs-sdk" do
-    url "https://github.com/ncbi/ngs/archive/1.2.2.tar.gz"
-    sha256 "b2b87ae114c463a1b3d9bbd19c54d1270341734f6b0c653e93090aee7e307867"
-  end
-
-  resource "ncbi-vdb" do
-    url "https://github.com/ncbi/ncbi-vdb/archive/2.5.4.tar.gz"
-    sha256 "f23900884b8eea3bf1f05a7426576740fbab56c64083283897ccb5d909f396e5"
-  end
-
   depends_on "autoconf" => :build
   depends_on "libxml2"
   depends_on "libmagic" => :recommended
   depends_on "hdf5" => :recommended
+
+  resource "ngs-sdk" do
+    url "https://github.com/ncbi/ngs/archive/1.2.3.tar.gz"
+    sha256 "625ec04737dea787f3800744f1d5fddb4d83b21013c281bcbc8691149b230794"
+  end
+
+  resource "ncbi-vdb" do
+    url "https://github.com/ncbi/ncbi-vdb/archive/2.6.1.tar.gz"
+    sha256 "e75b32501a0b616e192d5b069cb72e96a199644b249d8def742fd2810fee1cba"
+  end
 
   def install
     ENV.deparallelize
@@ -71,11 +72,12 @@ class Sratoolkit < Formula
     rm_rf "#{prefix}/ngs-sdk"
     rm_rf "#{prefix}/ncbi-vdb"
     rm_rf "#{lib}64"
-    rm_rf "#{include}"
+    rm_rf include.to_s
   end
 
   test do
-    system bin/"fastq-dump", "SRR000001"
+    # just download the first FASTQ read from an NCBI SRA run (needs internet connection)
+    system bin/"fastq-dump", "-N", "1", "-X", "1", "SRR000001"
     assert_match "@SRR000001.1 EM7LVYS02FOYNU length=284", File.read("SRR000001.fastq")
   end
 end
